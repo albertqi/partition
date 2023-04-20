@@ -261,6 +261,36 @@ inline const long hill_climbing(const std::vector<long> &nums,
     return simulated_annealing(nums, should_prepartition, false);
 }
 
+/**
+ * Runs experiments.
+ */
+void run_experiments()
+{
+    // Set up random generator.
+    std::random_device random_dev;
+    generator.seed(random_dev());
+    std::uniform_int_distribution<long> unif(1, pow(10, 12));
+
+    for (int i = 0; i < 50; ++i)
+    {
+        // Initialize `nums`.
+        std::vector<long> nums(100, 0);
+        for (auto &x : nums)
+        {
+            x = unif(generator);
+        }
+
+        // Print results.
+        printf("%ld\n", kk(nums));
+        printf("%ld\n", repeated_random(nums, false));
+        printf("%ld\n", hill_climbing(nums, false));
+        printf("%ld\n", simulated_annealing(nums, false));
+        printf("%ld\n", repeated_random(nums, true));
+        printf("%ld\n", hill_climbing(nums, true));
+        printf("%ld\n", simulated_annealing(nums, true));
+    }
+}
+
 int main(int argc, char *argv[])
 {
     // Check for valid command line arguments.
@@ -286,6 +316,13 @@ int main(int argc, char *argv[])
     {
         printf("Usage: ./partition [flag] [algorithm] [input_file]\n");
         return 1;
+    }
+
+    // Run experiments.
+    if (flag == 1)
+    {
+        run_experiments();
+        return 0;
     }
 
     // Open input file.
