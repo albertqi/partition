@@ -4,49 +4,11 @@
 #include <fstream>
 #include <vector>
 #include <random>
-#include <thread>
 #include <algorithm>
 
 #define MAX_ITER 25000
 
-thread_local std::mt19937 generator;
-
-const long residue(const std::vector<long> &nums, const std::vector<short> &signs)
-{
-    if (nums.size() != signs.size())
-    {
-        throw std::invalid_argument("Array sizes must match.");
-    }
-
-    long res = 0;
-    for (int i = 0; i < nums.size(); ++i)
-    {
-        res += nums[i] * signs[i];
-    }
-
-    return abs(res);
-}
-
-inline const long cooling_schedule(const int &iter)
-{
-    return pow(10, 10) * pow(0.8, iter / 300);
-}
-
-void process_prepartition(std::vector<long> &nums, const std::vector<int> &prepartition)
-{
-    if (nums.size() != prepartition.size())
-    {
-        throw std::invalid_argument("Array sizes must match.");
-    }
-
-    std::vector<long> new_nums(nums.size(), 0);
-    for (int i = 0; i < nums.size(); ++i)
-    {
-        new_nums[prepartition[i]] += nums[i];
-    }
-
-    nums = new_nums;
-}
+std::mt19937 generator;
 
 const long kk(std::vector<long> nums)
 {
@@ -71,46 +33,106 @@ const long kk(std::vector<long> nums)
     return nums.front();
 }
 
-const long repeated_random(const std::vector<long> &nums, const int &max_iter = MAX_ITER)
+const std::vector<long> process_prepartition(const std::vector<long> &nums,
+                                             const std::vector<int> &prepartition)
+{
+    if (nums.size() != prepartition.size())
+    {
+        throw std::invalid_argument("Array sizes must match.");
+    }
+
+    std::vector<long> new_nums(nums.size(), 0);
+    for (int i = 0; i < nums.size(); ++i)
+    {
+        new_nums[prepartition[i]] += nums[i];
+    }
+
+    return new_nums;
+}
+
+const long residue(const std::vector<long> &nums,
+                   const std::vector<int> &solution,
+                   const bool &is_prepartitioned)
+{
+    if (nums.size() != solution.size())
+    {
+        throw std::invalid_argument("Array sizes must match.");
+    }
+
+    if (is_prepartitioned)
+    {
+        return kk(process_prepartition(nums, solution));
+    }
+
+    long res = 0;
+    for (int i = 0; i < nums.size(); ++i)
+    {
+        res += nums[i] * (solution[i] ? 1 : -1);
+    }
+
+    return abs(res);
+}
+
+const long repeated_random(const std::vector<long> &nums,
+                           const bool &should_prepartition,
+                           const int &max_iter = MAX_ITER)
 {
     // Set up random generator.
     std::random_device random_dev;
     generator.seed(random_dev());
-    std::uniform_real_distribution<double> unif_real(0.0, 1.0);
+    std::uniform_int_distribution<int> unif_solution(0, should_prepartition ? nums.size() - 1 : 1);
 
     // Initialize `solution`.
-    std::vector<short> solution(nums.size(), 0);
+    std::vector<int> solution(nums.size(), 0);
     for (auto &x : solution)
     {
-        x = unif_real(generator) <= 0.5 ? -1 : 1;
+        x = unif_solution(generator);
     }
 
     for (int i = 0; i < max_iter; ++i)
     {
         // Initialize `candidate`.
-        std::vector<short> candidate(nums.size(), 0);
+        std::vector<int> candidate(nums.size(), 0);
         for (auto &x : candidate)
         {
-            x = unif_real(generator) <= 0.5 ? -1 : 1;
+            x = unif_solution(generator);
         }
 
         // Update `solution` if `candidate` is better.
-        if (residue(nums, candidate) < residue(nums, solution))
+        if (residue(nums, candidate, should_prepartition) <
+            residue(nums, solution, should_prepartition))
         {
             solution = candidate;
         }
     }
 
-    return residue(nums, solution);
+    return residue(nums, solution, should_prepartition);
 }
 
-const long simulated_annealing(const std::vector<long> &nums, const int &max_iter = MAX_ITER, const bool &is_stochastic = true)
+inline const long cooling_schedule(const int &iter)
 {
+    return pow(10, 10) * pow(0.8, iter / 300);
+}
+
+/**
+ * Simulated annealing algorithm.
+ *
+ * @param nums Array of numbers.
+ * @param should_prepartition Whether to prepartition the array.
+ * @param is_stochastic Whether to use simulated annealing or hill climbing.
+ * @return Residue of the solution.
+ */
+const long simulated_annealing(const std::vector<long> &nums,
+                               const bool &should_prepartition,
+                               const bool &is_stochastic = true)
+{
+    // Check for empty array.
     if (!nums.size())
     {
         throw std::invalid_argument("Array cannot be empty.");
     }
 
+    // Check for single element array.
     if (nums.size() == 1)
     {
         return nums.front();
@@ -120,57 +142,76 @@ const long simulated_annealing(const std::vector<long> &nums, const int &max_ite
     std::random_device random_dev;
     generator.seed(random_dev());
     std::uniform_real_distribution<double> unif_real(0.0, 1.0);
-    std::uniform_int_distribution<int> unif_int(0, nums.size() - 1);
+    std::uniform_int_distribution<int> unif_solution(0, should_prepartition ? nums.size() - 1 : 1);
+    std::uniform_int_distribution<int> unif_index(0, nums.size() - 1);
 
     // Initialize `solution`.
-    std::vector<short> solution(nums.size(), 0);
+    std::vector<int> solution(nums.size(), 0);
     for (auto &x : solution)
     {
-        x = unif_real(generator) <= 0.5 ? -1 : 1;
+        x = unif_solution(generator);
     }
 
     // Initialize `current`.
-    std::vector<short> current(solution);
+    std::vector<int> current(solution);
 
-    for (int i = 0; i < max_iter; ++i)
+    for (int i = 0; i < MAX_ITER; ++i)
     {
         // Initialize `neighbor`.
-        std::vector<short> neighbor(current);
+        std::vector<int> neighbor(current);
 
-        // Pick two random indices.
-        int a = unif_int(generator), b = unif_int(generator);
-        while (a == b)
+        // Generate a random neighbor.
+        if (should_prepartition)
         {
-            b = unif_int(generator);
+            // Pick two random indices.
+            int a = unif_index(generator), b = unif_index(generator);
+            while (current[a] == b)
+            {
+                b = unif_index(generator);
+            }
+
+            // Update `neighbor`.
+            neighbor[a] = b;
+        }
+        else
+        {
+            // Pick two random indices.
+            int a = unif_index(generator), b = unif_index(generator);
+            while (a == b)
+            {
+                b = unif_index(generator);
+            }
+
+            // Update `neighbor`.
+            neighbor[a] = !neighbor[a];
+            neighbor[b] = unif_solution(generator);
         }
 
-        // Update `neighbor`.
-        neighbor[a] *= -1;
-        neighbor[b] *= unif_real(generator) <= 0.5 ? -1 : 1;
-
         // Update `current`.
-        if (residue(nums, neighbor) < residue(nums, current))
+        if (residue(nums, neighbor, should_prepartition) <
+            residue(nums, current, should_prepartition))
         {
             current = neighbor;
         }
-        else if (is_stochastic && unif_real(generator) <= exp(-1.0 * (residue(nums, neighbor) - residue(nums, current)) / cooling_schedule(i)))
+        else if (is_stochastic && (unif_real(generator) <= exp(-1.0 * (residue(nums, neighbor, should_prepartition) - residue(nums, current, should_prepartition)) / cooling_schedule(i))))
         {
             current = neighbor;
         }
 
         // Update `solution` if `current` is better.
-        if (residue(nums, current) < residue(nums, solution))
+        if (residue(nums, current, should_prepartition) < residue(nums, solution, should_prepartition))
         {
             solution = current;
         }
     }
 
-    return residue(nums, solution);
+    return residue(nums, solution, should_prepartition);
 }
 
-inline const long hill_climbing(const std::vector<long> &nums, const int &max_iter = MAX_ITER)
+inline const long hill_climbing(const std::vector<long> &nums,
+                                const bool &should_prepartition)
 {
-    return simulated_annealing(nums, max_iter, false);
+    return simulated_annealing(nums, should_prepartition, false);
 }
 
 int main(int argc, char *argv[])
@@ -210,18 +251,6 @@ int main(int argc, char *argv[])
         file >> nums[i];
     }
 
-    // Set up random generator.
-    std::random_device random_dev;
-    generator.seed(random_dev());
-    std::uniform_int_distribution<int> unif_int(0, nums.size() - 1);
-
-    // Initialize `prepartition`.
-    std::vector<int> prepartition(nums.size(), 0);
-    for (auto &x : prepartition)
-    {
-        x = unif_int(generator);
-    }
-
     // Run specified algorithm and print residue.
     switch (alg)
     {
@@ -229,25 +258,22 @@ int main(int argc, char *argv[])
         printf("%ld\n", kk(nums));
         break;
     case 1:
-        printf("%ld\n", repeated_random(nums));
+        printf("%ld\n", repeated_random(nums, false));
         break;
     case 2:
-        printf("%ld\n", hill_climbing(nums));
+        printf("%ld\n", hill_climbing(nums, false));
         break;
     case 3:
-        printf("%ld\n", simulated_annealing(nums));
+        printf("%ld\n", simulated_annealing(nums, false));
         break;
     case 11:
-        process_prepartition(nums, prepartition);
-        printf("%ld\n", repeated_random(nums));
+        printf("%ld\n", repeated_random(nums, true));
         break;
     case 12:
-        process_prepartition(nums, prepartition);
-        printf("%ld\n", hill_climbing(nums));
+        printf("%ld\n", hill_climbing(nums, true));
         break;
     case 13:
-        process_prepartition(nums, prepartition);
-        printf("%ld\n", simulated_annealing(nums));
+        printf("%ld\n", simulated_annealing(nums, true));
         break;
     }
 
