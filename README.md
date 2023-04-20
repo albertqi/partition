@@ -6,12 +6,12 @@
 1. Introduction
 2. Dynamic Programming Solution
 3. Karmarkar-Karp Algorithm
-4. 
+4. Results
 5. Discussion of Experiments
 
 ## 1. Introduction
 
-In this write-up, we will compare the residues outputted by the Karmarkar-Karp algorithm as well as a repeated random, a hill climbing, and a simulated annealing algorithm both with and without prepartitions. First, we will illustrate a dynamic programming algorithm that runs in pseudo-polynomial time. Then, we will explain how the Karmarkar-Karp algorithm can be implemented in $O(n\log n)$ steps and then compare the algorithm to a variety of randomized heuristic algorithms on random input sets. Finally, we will discuss our experiments in more depth, covering the intricacies of our algorithms and other intriguing details we discovered along the way.
+In this write-up, we will compare the residues for the Number Partition problem outputted by the Karmarkar-Karp algorithm as well as a repeated random, a hill climbing, and a simulated annealing algorithm both with and without prepartitions. First, we will illustrate a dynamic programming algorithm that runs in pseudo-polynomial time. Then, we will explain how the Karmarkar-Karp algorithm can be implemented in $O(n\log n)$ steps and then compare the algorithm to a variety of randomized heuristic algorithms on random input sets. Finally, we will discuss our experiments in more depth, covering the intricacies of our algorithms and other intriguing details we discovered along the way.
 
 ## 2. Dynamic Programming Solution
 
@@ -67,9 +67,17 @@ Our overall runtime for the algorithm is just the sum of the runtimes for these 
 
 ## 3. Karmarkar-Karp Algorithm
 
+Assuming that the values in $A$ are small enough such that arithmetic operations take one step, the Karmarkar-Karp algorithm can be implemented in $O(n\log n)$ steps.
 
+The Karmarkar-Karp algorithm works by continually choosing the two largest elements in the sequence, taking their difference, and adding the difference back into the sequence. By utilizing the max-heap data structure, we can ensure that each iteration only takes $O(\log n)$ time. Below are the runtimes for the heap operations:
 
-## 4. 
+- Pop: $O(\log n)$
+
+- Insert: $O(\log n)$
+
+Each iteration requires two pops and one insert operation, meaning the runtime for each iteration is $O(2\log n)+O(\log n)=O(\log n)$ by asymptotic theory. The size of our sequence shrinks by $1$ after each iteration, so we have a total of $O(n)$ iterations. Thus, the Karmarkar-Karp algorithm should only take $O(n\log n)$ steps overall.
+
+## 4. Results
 
 
 
