@@ -7,7 +7,8 @@
 2. Dynamic Programming Solution
 3. Karmarkar-Karp Algorithm
 4. Results
-5. Discussion of Experiments
+5. Additional Observations
+6. Discussion of Experiments
 
 ## 1. Introduction
 
@@ -69,17 +70,36 @@ Our overall runtime for the algorithm is just the sum of the runtimes for these 
 
 Assuming that the values in $A$ are small enough such that arithmetic operations take one step, the Karmarkar-Karp algorithm can be implemented in $O(n\log n)$ steps.
 
-The Karmarkar-Karp algorithm works by continually choosing the two largest elements in the sequence, taking their difference, and adding the difference back into the sequence. By utilizing the max-heap data structure, we can ensure that each iteration only takes $O(\log n)$ time. Below are the runtimes for the heap operations:
+The Karmarkar-Karp algorithm works by continually choosing the two largest elements in the sequence, taking their absolute difference, and adding the difference back into the sequence. By utilizing the max-heap data structure, we can ensure that each iteration only takes $O(\log n)$ time. Below are the runtimes for the heap operations:
+
+- Make: $O(n)$
 
 - Pop: $O(\log n)$
 
 - Insert: $O(\log n)$
 
-Each iteration requires two pops and one insert operation, meaning the runtime for each iteration is $O(2\log n)+O(\log n)=O(\log n)$ by asymptotic theory. The size of our sequence shrinks by $1$ after each iteration, so we have a total of $O(n)$ iterations. Thus, the Karmarkar-Karp algorithm should only take $O(n\log n)$ steps overall.
+Each iteration requires two pops and one insert operation, meaning the runtime of each iteration is $O(2\log n)+O(\log n)=O(\log n)$ by asymptotic theory. The size of our sequence shrinks by $1$ after each iteration, so we have a total of $O(n)$ iterations. Furthermore, we only make the heap once at the very beginning, meaning the Karmarkar-Karp algorithm should take $O(n)+O(n\log n)=O(n\log n)$ steps overall.
 
 ## 4. Results
 
+| Algorithm                          | Average Residue |
+| :---------------------------------:| :-------------: |
+| Karmarkar-Karp                     | $170646.44$     |
+| Repeated Random                    | $310812988.92$  |
+| Hill Climbing                      | $370117223.52$  |
+| Simulated Annealing                | $299258510.08$  |
+| Prepartitioned Repeated Random     | $181.20$        |
+| Prepartitioned Hill Climbing       | $643.36$        |
+| Prepartitioned Simulated Annealing | $236.48$        |
+
+## 5. Additional Observations
 
 
-## 5. Discussion of Experiments
 
+## 6. Discussion of Experiments
+
+Notice that our implementation of `simulated_annealing` allows us to define `hill_climbing` in terms of `simulated_annealing`. Due to the similarities between the hill climbing and simulated annealing algorithms, we are able to make use of some abstraction. This helps us significantly simplify the code.
+
+Furthermore, as a minor optimization, we pass objects by reference whenever possible. This reduces the number of unnecessary copies and slightly improves the runtimes of almost all of our algorithms.
+
+Lastly, note that we generate random values through the `<random>` header because we trust this more than the C standard library function `rand`. Our generator is also seeded via `random_device`, ensuring that each trial has independent randomness.
