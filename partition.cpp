@@ -111,9 +111,7 @@ const long residue(const std::vector<long> &nums,
 const long repeated_random(const std::vector<long> &nums,
                            const bool &should_prepartition)
 {
-    // Set up random generator.
-    std::random_device random_dev;
-    generator.seed(random_dev());
+    // Initialize distribution.
     std::uniform_int_distribution<int> unif_solution(0, should_prepartition ? nums.size() - 1 : 1);
 
     // Initialize `solution`.
@@ -178,9 +176,7 @@ const long simulated_annealing(const std::vector<long> &nums,
         return nums.front();
     }
 
-    // Set up random generator.
-    std::random_device random_dev;
-    generator.seed(random_dev());
+    // Initialize distributions.
     std::uniform_real_distribution<double> unif_real(0.0, 1.0);
     std::uniform_int_distribution<int> unif_solution(0, should_prepartition ? nums.size() - 1 : 1);
     std::uniform_int_distribution<int> unif_index(0, nums.size() - 1);
@@ -266,9 +262,7 @@ inline const long hill_climbing(const std::vector<long> &nums,
  */
 void run_experiments()
 {
-    // Set up random generator.
-    std::random_device random_dev;
-    generator.seed(random_dev());
+    // Initialize distribution.
     std::uniform_int_distribution<long> unif(1, pow(10, 12));
 
     for (int i = 0; i < 50; ++i)
@@ -317,6 +311,10 @@ int main(int argc, char *argv[])
         printf("Usage: ./partition [flag] [algorithm] [input_file]\n");
         return 1;
     }
+
+    // Set up random generator.
+    std::random_device random_dev;
+    generator.seed(random_dev());
 
     // Run experiments.
     if (flag == 1)
