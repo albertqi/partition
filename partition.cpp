@@ -10,13 +10,21 @@
 
 std::mt19937 generator;
 
+/**
+ * Karmarkar-Karp algorithm.
+ *
+ * @param nums Array of numbers.
+ * @return Residue of the solution.
+ */
 const long kk(std::vector<long> nums)
 {
+    // Check for empty array.
     if (!nums.size())
     {
         throw std::invalid_argument("Array cannot be empty.");
     }
 
+    // Run the algorithm.
     std::make_heap(nums.begin(), nums.end());
     while (nums.size() >= 2)
     {
@@ -33,14 +41,23 @@ const long kk(std::vector<long> nums)
     return nums.front();
 }
 
+/**
+ * Preprocesses an input array with some prepartition.
+ *
+ * @param nums Array of numbers.
+ * @param prepartition Prepartition of the array.
+ * @return Preprocessed array.
+ */
 const std::vector<long> process_prepartition(const std::vector<long> &nums,
                                              const std::vector<int> &prepartition)
 {
+    // Check for mismatched array sizes.
     if (nums.size() != prepartition.size())
     {
         throw std::invalid_argument("Array sizes must match.");
     }
 
+    // Create preprocessed array.
     std::vector<long> new_nums(nums.size(), 0);
     for (int i = 0; i < nums.size(); ++i)
     {
@@ -50,20 +67,31 @@ const std::vector<long> process_prepartition(const std::vector<long> &nums,
     return new_nums;
 }
 
+/**
+ * Calculates the residue of a solution.
+ *
+ * @param nums Array of numbers.
+ * @param solution Solution to the problem.
+ * @param is_prepartitioned Whether the array is prepartitioned.
+ * @return Residue of the solution.
+ */
 const long residue(const std::vector<long> &nums,
                    const std::vector<int> &solution,
                    const bool &is_prepartitioned)
 {
+    // Check for mismatched array sizes.
     if (nums.size() != solution.size())
     {
         throw std::invalid_argument("Array sizes must match.");
     }
 
+    // Find residue with prepartitioned array.
     if (is_prepartitioned)
     {
         return kk(process_prepartition(nums, solution));
     }
 
+    // Find residue with unprepartitioned array.
     long res = 0;
     for (int i = 0; i < nums.size(); ++i)
     {
@@ -73,9 +101,15 @@ const long residue(const std::vector<long> &nums,
     return abs(res);
 }
 
+/**
+ * Repeated random algorithm.
+ *
+ * @param nums Array of numbers.
+ * @param should_prepartition Whether to prepartition the array.
+ * @return Residue of the solution.
+ */
 const long repeated_random(const std::vector<long> &nums,
-                           const bool &should_prepartition,
-                           const int &max_iter = MAX_ITER)
+                           const bool &should_prepartition)
 {
     // Set up random generator.
     std::random_device random_dev;
@@ -89,7 +123,7 @@ const long repeated_random(const std::vector<long> &nums,
         x = unif_solution(generator);
     }
 
-    for (int i = 0; i < max_iter; ++i)
+    for (int i = 0; i < MAX_ITER; ++i)
     {
         // Initialize `candidate`.
         std::vector<int> candidate(nums.size(), 0);
@@ -109,6 +143,12 @@ const long repeated_random(const std::vector<long> &nums,
     return residue(nums, solution, should_prepartition);
 }
 
+/**
+ * Calculates the cooling schedule.
+ *
+ * @param iter Iteration number.
+ * @return Temperature.
+ */
 inline const long cooling_schedule(const int &iter)
 {
     return pow(10, 10) * pow(0.8, iter / 300);
@@ -208,6 +248,13 @@ const long simulated_annealing(const std::vector<long> &nums,
     return residue(nums, solution, should_prepartition);
 }
 
+/**
+ * Hill climbing algorithm.
+ *
+ * @param nums Array of numbers.
+ * @param should_prepartition Whether to prepartition the array.
+ * @return Residue of the solution.
+ */
 inline const long hill_climbing(const std::vector<long> &nums,
                                 const bool &should_prepartition)
 {
