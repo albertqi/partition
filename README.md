@@ -82,6 +82,10 @@ Each iteration requires two pops and one insert operation, meaning the runtime o
 
 ## 4. Results
 
+We run $50$ trials on sets of $100$ integers, with each integer being a random number chosen uniformly from the range $[1,10^{12}]$. For each trial, we calculate the residue with each of the algorithms. Note that we run $25000$ iterations for each of the randomized heuristic algorithms.
+
+The following table shows the residues for each algorithm averaged across $50$ trials.
+
 | Algorithm                          | Average Residue |
 | :---------------------------------:| :-------------: |
 | Karmarkar-Karp                     | $170646.44$     |
@@ -92,9 +96,17 @@ Each iteration requires two pops and one insert operation, meaning the runtime o
 | Prepartitioned Hill Climbing       | $643.36$        |
 | Prepartitioned Simulated Annealing | $236.48$        |
 
+From this, we can see that blah blah blah.
+
 ## 5. Additional Observations
 
+In our experiments, we always utilize a random initial starting point. However, we could have used the solution from the Karmarkar-Karp algorithm as our starting point for the randomized algorithms.
 
+To do so, we would first need to slightly modify the Karmarkar-Karp algorithm to return not just the residue but also the partition of numbers. One way of doing this would be to build some sort of tree and keep track of the relationships between different elements.
+
+Now, suppose that we start the repeated random algorithm with the solution from the Karmarkar-Karp algorithm. That is, instead of initially generating a random solution, we utilize the one obtained from the Karmarkar-Karp algorithm. Believe it or not, there is not much that would change since the candidates that we generate do not rely on our current solution. The only guarantee that we really have is that the repeated random algorithm would return a solution at least as good as the one from the Karmarkar-Karp algorithm.
+
+However, if we start with the solution from the Karmarkar-Karp algorithm for the hill climbing or simulated annealing algorithms, then we would notice more of a difference. This is because these algorithms do not randomly generate solutions but rather look at their neighbors. By starting at the solution from the Karmarkar-Karp algorithm, we would be able to build off of this solution and improve it greatly. Thus, we would notice more of a difference.
 
 ## 6. Discussion of Experiments
 
