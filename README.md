@@ -11,7 +11,7 @@
 
 ## 1. Introduction
 
-
+In this write-up, we will compare the residues outputted by the Karmarkar-Karp algorithm as well as a repeated random, a hill climbing, and a simulated annealing algorithm both with and without prepartitions. First, we will illustrate a dynamic programming algorithm that runs in pseudo-polynomial time. Then, we will explain how the Karmarkar-Karp algorithm can be implemented in $O(n\log n)$ steps and then compare the algorithm to a variety of randomized heuristic algorithms on random input sets. Finally, we will discuss our experiments in more depth, covering the intricacies of our algorithms and other intriguing details we discovered along the way.
 
 ## 2. Dynamic Programming Solution
 
