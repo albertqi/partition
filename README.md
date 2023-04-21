@@ -68,6 +68,28 @@ Our overall runtime for the algorithm is just the sum of the runtimes for these 
 
 Furthermore, we know that our algorithm is correct because of the following:
 
+1. Our $dp$ is correct.
+
+    - The first zero elements of $A$ always sum to zero, and we correctly set $d[0][0]=\text{TRUE}$ and $d[0][j]=\text{FALSE}$ for $j\neq 0$.
+
+    - If $j < A[i]$, then we cannot possibly get a sum of $j$ by including $A[i]$. As a result, we must ignore $A[i]$ and try to find a sum of $j$ by using the first $i-1$ elements. Thus, we correctly set $dp[i][j]=dp[i-1][j]$ if $j < A[i]$.
+
+    - If $j\geq A[i]$, then we have two possible cases in which the first $i$ elements can sum to $j$. First, they can sum to $j$ if the first $i-1$ elements sum to $j$, whereupon we will ignore $A[i]$. Second, they can sum to $j$ if we include $A[i]$ in our sum and obtain a sum of $j-A[i]$ in the first $i-1$ elements. Thus, we correctly set $dp[i][j]=dp[i-1][j]\vee dp[i-1][j-A[i]]$ if $j\geq A[i]$.
+
+2. Our $s$ is correct.
+
+    - If $i=0$, then we have no elements in our sum, meaning $s[0][j]=\lbrace\rbrace$ regardless of whether $dp[0][j]$ is $\text{TRUE}$ or $\text{FALSE}$.
+
+    - If $dp[i-1][j]=\text{TRUE}$, then there exists some subset of the first $i-1$ elements that sum to $j$. We can reuse this set to have the first $i$ elements also sum to $j$. Thus, we correcly set $s[i][j]=s[i-1][j]$ if $dp[i-1][j]=\text{TRUE}$.
+
+    - If $dp[i-1][j-A[i]]=\text{TRUE}$, then we can find a subset that sums to $j$ by taking a subset of the first $i-1$ elements and adding the element $A[i]$. Thus, we correcly set $s[i][j]=s[i-1][j-A[i]]\cup\lbrace A[i]\rbrace$ if $dp[i-1][j-A[i]]=\text{TRUE}$.
+
+    - Otherwise, there is no subset that sums to $j$, meaning we should set $s[i][j]=\lbrace\rbrace$.
+
+3. We correctly initialize $i=\lfloor(\sum a_k)/2\rfloor$. This represents the best case scenario in which the sums of the partitions are as close to each other as possible. Because we then slowly decrement $i$, we are guaranteed to find the partition that minimizes the residue.
+
+As such, we can see that our algorithm is indeed correct. Thus, we have proven that there exists a dynamic programming algorithm to solve the Number Partition problem in pseudo-polynomial time.
+
 ## 3. Karmarkar-Karp Algorithm
 
 Assuming that the values in $A$ are small enough such that arithmetic operations take one step, the Karmarkar-Karp algorithm can be implemented in $O(n\log n)$ steps.
