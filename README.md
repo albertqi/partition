@@ -66,6 +66,8 @@ Now, we will analyze the runtime of our algorithm:
 
 Our overall runtime for the algorithm is just the sum of the runtimes for these steps. As a result, the runtime for the algorithm is $O(nb)+O(nb)+O(nb)+O(nb)+O(n\log b)+O(\log b)+O(1)+O(b)+O(n)=O(nb)$ by asymptotic theory.
 
+Furthermore, we know that our algorithm is correct because of the following:
+
 ## 3. Karmarkar-Karp Algorithm
 
 Assuming that the values in $A$ are small enough such that arithmetic operations take one step, the Karmarkar-Karp algorithm can be implemented in $O(n\log n)$ steps.
@@ -82,7 +84,7 @@ Each iteration requires two pops and one insert operation, meaning the runtime o
 
 ## 4. Results
 
-We run $50$ trials on sets of $100$ integers, with each integer being a random number chosen uniformly from the range $[1,10^{12}]$. For each trial, we calculate the residue with each of the algorithms. Note that we run $25000$ iterations for each of the randomized heuristic algorithms.
+We perform $50$ trials on sets of $100$ integers, with each integer being a random number chosen uniformly from the range $[1,10^{12}]$. For each trial, we calculate the residue with each of the algorithms. Note that we run $25000$ iterations for each of the randomized heuristic algorithms.
 
 The following table shows the residues for each algorithm averaged across $50$ trials.
 
@@ -96,7 +98,13 @@ The following table shows the residues for each algorithm averaged across $50$ t
 | Prepartitioned Hill Climbing       | $643.36$        |
 | Prepartitioned Simulated Annealing | $236.48$        |
 
-From this, we can see that blah blah blah.
+From this, we can see three major groups emerge: the Karmarkar-Karp algorithm, randomized heuristic algorithms without prepartitions, and randomized heuristic algorithms with prepartitions.
+
+It seems that the prepartitioned algorithms perform significantly better (i.e., $\approx 10^6$ times better) than their non-prepartitioned counterparts. This is likely due to the fact that the prepartitioned algorithms utilize the Karmarkar-Karp algorithm, which will ultimately lead to better residues than those from solutions consisting of random signs. Thus, the prepartitioned algorithms result in much lower residues.
+
+Furthermore, we can see that simulated annealing seems to perform the best out of the non-prepartitioned randomized heuristic algorithms. This makes sense; it outperforms the repeated random algorithm by consistently improving a solution, and it outperforms the hill climbing algorithm by being able to escape local minima that are not globally optimal.
+
+Interestingly, the hill climbing algorithm seems to lag behind both the repeated random and simulated annealing algorithms, regardless of whether or not we decide to prepartition. One possible explanation is that the algorithm is highly dependent on its randomly chosen starting point. If we choose a poor starting solution by chance, then we may be stuck with a residue that is locally optimal but still very far from the global optimum.
 
 ## 5. Additional Observations
 
