@@ -80,9 +80,9 @@ Furthermore, we know that our algorithm is correct because of the following:
 
     - If $i=0$, then we have no elements in our sum, meaning $s[0][j]=\lbrace\rbrace$ regardless of whether $dp[0][j]$ is $\text{TRUE}$ or $\text{FALSE}$.
 
-    - If $dp[i-1][j]=\text{TRUE}$, then there exists some subset of the first $i-1$ elements that sum to $j$. We can reuse this set to have the first $i$ elements also sum to $j$. Thus, we correcly set $s[i][j]=s[i-1][j]$ if $dp[i-1][j]=\text{TRUE}$.
+    - If $dp[i-1][j]=\text{TRUE}$, then there exists some subset of the first $i-1$ elements that sum to $j$. We can reuse this set to have the first $i$ elements also sum to $j$. Thus, we correctly set $s[i][j]=s[i-1][j]$ if $dp[i-1][j]=\text{TRUE}$.
 
-    - If $dp[i-1][j-A[i]]=\text{TRUE}$, then we can find a subset that sums to $j$ by taking a subset of the first $i-1$ elements and adding the element $A[i]$. Thus, we correcly set $s[i][j]=s[i-1][j-A[i]]\cup\lbrace A[i]\rbrace$ if $dp[i-1][j-A[i]]=\text{TRUE}$.
+    - If $dp[i-1][j-A[i]]=\text{TRUE}$, then we can find a subset that sums to $j$ by taking a subset of the first $i-1$ elements and adding the element $A[i]$. Thus, we correctly set $s[i][j]=s[i-1][j-A[i]]\cup\lbrace A[i]\rbrace$ if $dp[i-1][j-A[i]]=\text{TRUE}$.
 
     - Otherwise, there is no subset that sums to $j$, meaning we should set $s[i][j]=\lbrace\rbrace$.
 
